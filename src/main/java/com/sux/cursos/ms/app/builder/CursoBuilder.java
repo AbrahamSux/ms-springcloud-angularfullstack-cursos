@@ -4,12 +4,12 @@
  */
 package com.sux.cursos.ms.app.builder;
 
+import com.sux.cursos.ms.app.model.dto.AlumnoDTO;
 import com.sux.cursos.ms.app.model.dto.CursoDTO;
 import com.sux.cursos.ms.app.model.entity.Curso;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @name CursoBuilder
@@ -17,7 +17,7 @@ import java.util.Optional;
  *
  * @author Abraham Juárez de la Cruz - ajuarezdelacruz93@gmail.com
  * @creationDate 22/11/2021 16:07 hrs
- * @version 0.1
+ * @version 0.2
  */
 public class CursoBuilder {
 
@@ -60,6 +60,7 @@ public class CursoBuilder {
             cursoDTO.setId(curso.getId());
             cursoDTO.setNombre(curso.getNombre());
             cursoDTO.setDescripcion(curso.getDescripcion());
+            cursoDTO.setAlumnos( AlumnoBuilder.buildAlumnoDTOListFromAlumnoList(curso.getAlumnos()) );
             cursoDTO.setCreateAt(curso.getCreateAt());
         }
 
@@ -80,6 +81,7 @@ public class CursoBuilder {
             curso.setId(cursoDTO.getId());
             curso.setNombre(cursoDTO.getNombre());
             curso.setDescripcion(cursoDTO.getDescripcion());
+            curso.setAlumnos( AlumnoBuilder.buildAlumnoListFromAlumnoDTOList(cursoDTO.getAlumnos()) );
             curso.setCreateAt( cursoDTO.getId() != null ? cursoDTO.getCreateAt() : null );
         }
 
@@ -87,24 +89,38 @@ public class CursoBuilder {
     }
 
     /**
-     * Método que construye un CursoDTO a partir de un objeto de tipo Optional<CursoDTO> y otro CursoDTO.
+     * Método auxiliar utilizado para actualizar un CursoDTO a partir de un CursoDTO Origen (persistido en base de datos)
+     * y otro CursoDTO Nuevo (con los datos a actualizar).
      *
-     * @param optional Optional de tipo CursoDTO.
-     * @param cursoDTO Objeto de tipo CursoDTO.
-     * @return Objeto CursoDTO
+     * @param originCursoDTO Objeto de tipo CursoDTO persistido en la base de datos.
+     * @param newCursoDTO Objeto de tipo CursoDTO con los datos a actualizar.
+     * @return Objeto CursoDTO con los datos actualizados.
      */
-    public static CursoDTO buildCursoDTOUpdatedForCursoOptional(Optional<CursoDTO> optional, CursoDTO cursoDTO) {
-        CursoDTO cursoDTOUpdated = null;
+    public static CursoDTO buildCursoDTOUpdated(CursoDTO originCursoDTO, CursoDTO newCursoDTO) {
 
-        if (optional.isPresent() && cursoDTO != null) {
-            cursoDTOUpdated = new CursoDTO();
-            cursoDTOUpdated.setId(optional.get().getId());
-            cursoDTOUpdated.setNombre(cursoDTO.getNombre());
-            cursoDTOUpdated.setDescripcion(cursoDTO.getDescripcion());
-            cursoDTOUpdated.setCreateAt(optional.get().getCreateAt());
+        if (originCursoDTO != null && newCursoDTO != null) {
+            // Datos que se actualizarán
+            originCursoDTO.setNombre(newCursoDTO.getNombre());
+            originCursoDTO.setDescripcion(newCursoDTO.getDescripcion());
         }
 
-        return cursoDTOUpdated;
+        return originCursoDTO;
+    }
+
+    /**
+     * Método auxiliar utilizado para agregar alumnos a un curso.
+     *
+     * @param cursoDTO Objeto de tipo CursoDTO al que se le agregarán los alumnos.
+     * @param alumnoDTOList Lista de Alumnos a agregar.
+     * @return Objeto de tipo CursoDTO con los alumnos agregados.
+     */
+    public static CursoDTO addStudentsToTheCourse(CursoDTO cursoDTO, List<AlumnoDTO> alumnoDTOList) {
+
+        if (cursoDTO != null && alumnoDTOList != null) {
+            alumnoDTOList.forEach(cursoDTO::addAlumno);
+        }
+
+        return cursoDTO;
     }
 
 }

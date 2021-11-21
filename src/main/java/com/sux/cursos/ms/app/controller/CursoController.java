@@ -5,6 +5,7 @@
 package com.sux.cursos.ms.app.controller;
 
 import com.sux.cursos.ms.app.builder.CursoBuilder;
+import com.sux.cursos.ms.app.model.dto.AlumnoDTO;
 import com.sux.cursos.ms.app.model.dto.CursoDTO;
 import com.sux.cursos.ms.app.service.CursoService;
 import org.slf4j.Logger;
@@ -31,7 +32,7 @@ import java.util.Optional;
  *
  * @author Abraham Juárez de la Cruz - ajuarezdelacruz93@gmail.com
  * @creationDate 20/11/2021 20:08 hrs
- * @version 0.1
+ * @version 0.2
  */
 @RestController
 @RequestMapping("/cursos/app")
@@ -98,10 +99,10 @@ public class CursoController {
             LOGGER.info(">>> editarCurso( {}, {} )", curso.toString(), identificador);
         }
 
-        Optional<CursoDTO> optional = cursoService.findById(identificador);
+        Optional<CursoDTO> optionalCursoDTO = cursoService.findById(identificador);
 
-        if (optional.isPresent()) {
-            CursoDTO cursoDTO = CursoBuilder.buildCursoDTOUpdatedForCursoOptional(optional, curso);
+        if (optionalCursoDTO.isPresent()) {
+            CursoDTO cursoDTO = CursoBuilder.buildCursoDTOUpdated(optionalCursoDTO.get(), curso);
 
             if (cursoDTO != null) {
                 return ResponseEntity.status(HttpStatus.CREATED).body(cursoService.save(cursoDTO));
@@ -120,7 +121,47 @@ public class CursoController {
 
         boolean response = cursoService.deleteById(identificador);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(response ? HttpStatus.OK : HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @PutMapping("/curso/{id}/asignar-alumnos")
+    public ResponseEntity<?> agregarAlumnosAlCurso(@RequestBody List<AlumnoDTO> alumnoList,
+                                                   @PathVariable(name = "id") Long identificador) {
+
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(">>> agregarAlumnosAlCurso( {}, {} )", alumnoList.toArray(), identificador);
+        }
+
+        Optional<CursoDTO> optionalCursoDTO = cursoService.findById(identificador);
+
+        if (optionalCursoDTO.isPresent()) {
+            CursoDTO cursoDTO = CursoBuilder.addStudentsToTheCourse(optionalCursoDTO.get(), alumnoList);
+
+            if (cursoDTO != null) {
+                return ResponseEntity.status(HttpStatus.CREATED).body(cursoService.save(cursoDTO));
+            }
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/curso/{id}/eliminar-alumno")
+    public ResponseEntity<?> eliminarAlumnoDelCurso(@RequestBody AlumnoDTO alumno,
+                                                   @PathVariable(name = "id") Long identificador) {
+
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(">>> eliminarAlumnosDelCurso( {}, {} )", alumno.toString(), identificador);
+        }
+
+        Optional<CursoDTO> optionalCursoDTO = cursoService.findById(identificador);
+
+        if (optionalCursoDTO.isPresent()) {
+            optionalCursoDTO.get().removeAlumno(alumno);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(cursoService.save(optionalCursoDTO.get()));
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
 }

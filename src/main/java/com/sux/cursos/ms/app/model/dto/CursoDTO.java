@@ -5,6 +5,7 @@
 package com.sux.cursos.ms.app.model.dto;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @name CursoDTO
@@ -12,7 +13,7 @@ import java.util.Date;
  *
  * @author Abraham Juárez de la Cruz - ajuarezdelacruz93@gmail.com
  * @creationDate 20/11/2021 16:03 hrs
- * @version 0.1
+ * @version 0.2
  */
 public class CursoDTO {
 
@@ -22,8 +23,13 @@ public class CursoDTO {
 
     private String descripcion;
 
+    private List<AlumnoDTO> alumnos;
+
     private Date createAt;
 
+
+
+    // MÉTODOS
 
     public CursoDTO() {
     }
@@ -35,6 +41,17 @@ public class CursoDTO {
         this.createAt = createAt;
     }
 
+    public void addAlumno(AlumnoDTO alumnoDTO) {
+        this.alumnos.add(alumnoDTO);
+    }
+
+    public void  removeAlumno(AlumnoDTO alumnoDTO) {
+        this.alumnos.remove(alumnoDTO);
+    }
+
+
+
+    // GETTERS Y SETTERS
 
     public Long getId() {
         return id;
@@ -60,6 +77,14 @@ public class CursoDTO {
         this.descripcion = descripcion;
     }
 
+    public List<AlumnoDTO> getAlumnos() {
+        return alumnos;
+    }
+
+    public void setAlumnos(List<AlumnoDTO> alumnos) {
+        this.alumnos = alumnos;
+    }
+
     public Date getCreateAt() {
         return createAt;
     }
@@ -74,6 +99,7 @@ public class CursoDTO {
                 "id=" + id +
                 ", nombre='" + nombre + '\'' +
                 ", descripcion='" + descripcion + '\'' +
+                ", alumnos=" + alumnos +
                 ", createAt=" + createAt +
                 '}';
     }
